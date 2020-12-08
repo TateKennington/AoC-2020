@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::Read;
 
@@ -33,15 +34,17 @@ fn main() {
             }
         })
         .collect();
+    let mut loops = HashMap::new();
     let mut acc = 0;
     let mut curr: i32 = 0;
-    let mut seen = HashSet::new();
+    let mut critical_loop = HashSet::new();
     loop {
-        if seen.contains(&curr) {
+        if critical_loop.contains(&curr) {
             println!("{}", acc);
             break;
         }
-        seen.insert(curr);
+        critical_loop.insert(curr);
+        loops.insert(curr, true);
         match instructions[curr as usize] {
             Instructions::Nop(_) => curr += 1,
             Instructions::Jmp(arg) => curr += arg,
@@ -53,36 +56,71 @@ fn main() {
     }
 
     for i in 0..instructions.len() {
-        if let Instructions::Acc(_) = instructions[i] {
+        let mut curr = i as i32;
+        if loops.contains_key(&curr) {
             continue;
         }
-        let mut acc = 0;
-        let mut curr: i32 = 0;
         let mut seen = HashSet::new();
         loop {
             if curr == instructions.len() as i32 {
-                println!("{}", acc);
-                return;
+                seen.iter().for_each(|pc| {
+                    loops.insert(*pc, false);
+                });
+                break;
             }
             if seen.contains(&curr) {
+                seen.iter().for_each(|pc| {
+                    loops.insert(*pc, true);
+                });
                 break;
             }
             seen.insert(curr);
             match instructions[curr as usize] {
-                Instructions::Nop(arg) => {
-                    if curr == i as i32 {
-                        curr += arg;
-                    } else {
-                        curr += 1;
-                    }
+                Instructions::Nop(_) => curr += 1,
+                Instructions::Jmp(arg) => curr += arg,
+                Instructions::Acc(arg) => {
+                    acc += arg;
+                    curr += 1;
                 }
-                Instructions::Jmp(arg) => {
-                    if curr == i as i32 {
-                        curr += 1;
-                    } else {
-                        curr += arg;
-                    }
+            }
+        }
+    }
+    let mut mutation = 0;
+    for pc in critical_loop.iter() {
+        if let Instructions::Nop(arg) = instructions[*pc as usize] {
+            if !loops[&(*pc + arg)] {
+                mutation = *pc;
+                break;
+            }
+        }
+        if let Instructions::Jmp(_) = instructions[*pc as usize] {
+            if !loops[&(*pc + 1)] {
+                mutation = *pc;
+                break;
+            }
+        }
+    }
+
+    let mut acc = 0;
+    let mut curr: i32 = 0;
+    loop {
+        if curr == instructions.len() as i32 {
+            println!("{}", acc);
+            break;
+        }
+        if curr == mutation {
+            match instructions[curr as usize] {
+                Instructions::Nop(arg) => curr += arg,
+                Instructions::Jmp(_) => curr += 1,
+                Instructions::Acc(arg) => {
+                    acc += arg;
+                    curr += 1;
                 }
+            }
+        } else {
+            match instructions[curr as usize] {
+                Instructions::Nop(_) => curr += 1,
+                Instructions::Jmp(arg) => curr += arg,
                 Instructions::Acc(arg) => {
                     acc += arg;
                     curr += 1;
