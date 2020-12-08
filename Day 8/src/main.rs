@@ -74,6 +74,12 @@ fn main() {
                 });
                 break;
             }
+            if loops.contains_key(&curr) {
+                seen.iter().for_each(|pc| {
+                    loops.insert(*pc, loops[&curr]);
+                });
+                break;
+            }
             seen.insert(curr);
             match instructions[curr as usize] {
                 Instructions::Nop(_) => curr += 1,
