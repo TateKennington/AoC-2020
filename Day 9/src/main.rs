@@ -4,29 +4,26 @@ use std::io::Read;
 fn main() {
     let mut stdin = std::io::stdin();
     let mut input = String::default();
-    let mut part1 = 0;
 
     stdin.read_to_string(&mut input).unwrap();
-    let nums: Vec<i64> = input
+    let nums = input
         .lines()
         .map(|line| line.trim().parse().unwrap())
-        .collect();
-    for i in 25..nums.len() {
-        let mut sums = HashSet::new();
-        let mut found = false;
-        let curr = nums[i];
-        for j in i - 25..i {
-            if sums.contains(&nums[j]) {
-                found = true;
-                break;
+        .collect::<Vec<i64>>();
+    let part1 = nums
+        .windows(26)
+        .find_map(|nums| {
+            let mut sums = HashSet::new();
+            let curr = nums[nums.len() - 1];
+            for j in 0..nums.len() - 1 {
+                if sums.contains(&nums[j]) {
+                    return None;
+                }
+                sums.insert(curr - nums[j]);
             }
-            sums.insert(curr - nums[j]);
-        }
-        if !found {
-            part1 = curr;
-            break;
-        }
-    }
+            Some(curr)
+        })
+        .unwrap();
     println!("Part 1: {}", part1);
 
     let mut start = 0;
