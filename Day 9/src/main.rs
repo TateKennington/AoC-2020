@@ -7,20 +7,20 @@ fn main() {
     let mut part1 = 0;
 
     stdin.read_to_string(&mut input).unwrap();
-    let lines: Vec<i64> = input
+    let nums: Vec<i64> = input
         .lines()
         .map(|line| line.trim().parse().unwrap())
         .collect();
-    for i in 25..lines.len() {
-        let mut set = HashSet::new();
+    for i in 25..nums.len() {
+        let mut sums = HashSet::new();
         let mut found = false;
-        let curr = lines[i];
+        let curr = nums[i];
         for j in i - 25..i {
-            if set.contains(&lines[j]) {
+            if sums.contains(&nums[j]) {
                 found = true;
                 break;
             }
-            set.insert(curr - lines[j]);
+            sums.insert(curr - nums[j]);
         }
         if !found {
             part1 = curr;
@@ -31,18 +31,18 @@ fn main() {
 
     let mut start = 0;
     let mut end = 0;
-    let mut curr_sum = lines[0];
+    let mut curr_sum = nums[0];
     while curr_sum != part1 {
         if curr_sum > part1 {
-            curr_sum -= lines[start];
+            curr_sum -= nums[start];
             start += 1;
         } else {
             end += 1;
-            curr_sum += lines[end];
+            curr_sum += nums[end];
         }
     }
     println!(
         "Part 2: {}",
-        lines[start..=end].iter().max().unwrap() + lines[start..=end].iter().min().unwrap()
+        nums[start..=end].iter().max().unwrap() + nums[start..=end].iter().min().unwrap()
     );
 }
