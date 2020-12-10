@@ -1,26 +1,6 @@
 use std::collections::HashMap;
 use std::io::Read;
 
-fn process(curr: u64, nums: &Vec<u64>, memo: &mut HashMap<u64, u64>) -> u64 {
-    if curr + 1 == nums.len() as u64 {
-        return 1;
-    }
-    if memo.contains_key(&curr) {
-        return memo[&curr];
-    }
-    let mut res = 0;
-    let mut i = curr + 1;
-    while i < nums.len() as u64 {
-        if nums[i as usize] - nums[curr as usize] > 3 {
-            break;
-        }
-        res += process(i, nums, memo);
-        i += 1;
-    }
-    memo.insert(curr, res);
-    return res;
-}
-
 fn main() {
     let mut stdin = std::io::stdin();
     let mut input = String::default();
@@ -43,5 +23,22 @@ fn main() {
         }
     });
     println!("{}", one * three);
-    println!("{}", process(0, &nums, &mut HashMap::new()))
+    let mut memo: Vec<u64> = Vec::with_capacity(nums.len());
+    for _i in 0..nums.len() {
+        memo.push(0);
+    }
+    memo[nums.len() - 1] = 1;
+    let mut i = (nums.len() - 2) as i32;
+    while i >= 0 {
+        let mut res = 0;
+        for j in i + 1..nums.len() as i32 {
+            if nums[j as usize] - nums[i as usize] > 3 {
+                break;
+            }
+            res += memo[j as usize];
+        }
+        memo[i as usize] = res;
+        i -= 1
+    }
+    println!("{}", memo[0]);
 }
