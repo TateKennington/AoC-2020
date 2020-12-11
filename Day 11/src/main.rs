@@ -56,14 +56,15 @@ fn main() {
                     continue;
                 }
                 let pos = (i as i32, j as i32);
-                let adj = is_adj(pos, (1, 0), &grid)
-                    + is_adj(pos, (-1, 0), &grid)
-                    + is_adj(pos, (0, 1), &grid)
-                    + is_adj(pos, (0, -1), &grid)
-                    + is_adj(pos, (1, 1), &grid)
-                    + is_adj(pos, (1, -1), &grid)
-                    + is_adj(pos, (-1, 1), &grid)
-                    + is_adj(pos, (-1, -1), &grid);
+                let mut adj = 0;
+                for x in -1..=1 {
+                    for y in -1..=1 {
+                        let dir = (x, y);
+                        if dir != (0, 0) {
+                            adj += is_adj(pos, dir, &grid)
+                        }
+                    }
+                }
 
                 if grid[i][j] == 'L' && adj == 0 {
                     next[i].push('#');
@@ -100,14 +101,15 @@ fn main() {
                     continue;
                 }
                 let pos = (i as i32, j as i32);
-                let adj = can_see(pos, (1, 0), &grid)
-                    + can_see(pos, (-1, 0), &grid)
-                    + can_see(pos, (0, 1), &grid)
-                    + can_see(pos, (0, -1), &grid)
-                    + can_see(pos, (1, 1), &grid)
-                    + can_see(pos, (1, -1), &grid)
-                    + can_see(pos, (-1, 1), &grid)
-                    + can_see(pos, (-1, -1), &grid);
+                let mut adj = 0;
+                for x in -1..=1 {
+                    for y in -1..=1 {
+                        let dir = (x, y);
+                        if dir != (0, 0) {
+                            adj += can_see(pos, dir, &grid)
+                        }
+                    }
+                }
                 if grid[i][j] == 'L' && adj == 0 {
                     next[i].push('#');
                     changed = true;
